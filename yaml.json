@@ -6,15 +6,16 @@
       "kind: Pod",
       "metadata:",
       "  name: ${1:nginx}",
+      "  namespace: ${2:default}",
       "spec:",
       "  containers:",
-      "    - name: ${2:nginx}",
-      "      image: ${3:nginx}:${4:no-value}",
+      "    - name: ${3:nginx}",
+      "      image: ${4:nginx}:${5:no-value}",
       "      env: #This block can be deleted",
       "        - name: foo",
       "        - value: \"bar\"",
       "      ports:",
-      "        - containerPort: ${5:8080}"
+      "        - containerPort: ${6:8080}"
     ],
     "description": "Basic k8s pod"
   },
@@ -25,13 +26,259 @@
       "kind: Service",
       "metadata:",
       "  name: ${1:nginx-svc}",
+      "  namespace: ${2:default}",
       "spec:",
       "  selector:",
-      "    app: ${2:nginx}",
+      "    app: ${3:nginx}",
       "  ports:",
-      "    - port: ${3:8080}",
-      "      targetPort: ${4:80}"
+      "    - port: ${4:8080}",
+      "      targetPort: ${5:80}"
     ],
     "description": "Basic k8s svc"
+  },
+  "K8sSvc-np": {
+    "prefix": "k8s-svc-np",
+    "body": [
+      "apiVersion: v1",
+      "kind: Service",
+      "metadata:",
+      "  name: ${1:nginx-svc}",
+      "  namespace: ${2:default}",
+      "spec:",
+      "  type: NodePort",
+      "  selector:",
+      "    app: ${3:nginx}",
+      "  ports:",
+      "    - port: ${4:80}",
+      "      targetPort: ${5:80}",
+      "      nodePort: ${6:30007}"
+    ],
+    "description": "Basic k8s svc + nodeport"
+  },
+  "K8sDeployment": {
+    "prefix": "k8s-deploy",
+    "body": [
+      "apiVersion: apps/v1",
+      "kind: Deployment",
+      "metadata:",
+      "  name: ${1:nginx-deploy}",
+      "spec:",
+      "  replicas: ${2:1}",
+      "  selector:",
+      "    matchLabels:",
+      "      app: ${3:nginx}",
+      "  template:",
+      "    metadata:",
+      "      labels:",
+      "        app: ${3:nginx}",
+      "    spec:",
+      "      containers:",
+      "        - name: ${4:nginx}",
+      "          image: ${5:nginx}:${6:latest}",
+      "          ports:",
+      "            - containerPort: ${7:80}"
+    ],
+    "description": "Basic k8s deployment"
+  },
+  "K8sIngress": {
+    "prefix": "k8s-ingress",
+    "body": [
+      "apiVersion: networking.k8s.io/v1",
+      "kind: Ingress",
+      "metadata:",
+      "  name: ${1:nginx-ingress}",
+      "spec:",
+      "  rules:",
+      "    - host: ${2:example.com}",
+      "      http:",
+      "        paths:",
+      "          - path: /",
+      "            pathType: Prefix",
+      "            backend:",
+      "              service:",
+      "                name: ${3:nginx-svc}",
+      "                port:",
+      "                  number: ${4:80}"
+    ],
+    "description": "Basic k8s ingress"
+  },
+  "K8sConfigMap": {
+    "prefix": "k8s-cm",
+    "body": [
+      "apiVersion: v1",
+      "kind: ConfigMap",
+      "metadata:",
+      "  name: ${1:app-config}",
+      "data:",
+      "  ${2:key}: ${3:value}"
+    ],
+    "description": "Basic k8s configmap"
+  },
+  "K8sSecret": {
+    "prefix": "k8s-secret",
+    "body": [
+      "apiVersion: v1",
+      "kind: Secret",
+      "metadata:",
+      "  name: ${1:app-secret}",
+      "type: Opaque",
+      "data:",
+      "  ${2:username}: ${3:base64-encoded-value}",
+      "  ${4:password}: ${5:base64-encoded-value}"
+    ],
+    "description": "Basic k8s secret"
+  },
+  "K8sNamespace": {
+    "prefix": "k8s-ns",
+    "body": [
+      "apiVersion: v1",
+      "kind: Namespace",
+      "metadata:",
+      "  name: ${1:my-namespace}"
+    ],
+    "description": "Basic k8s namespace"
+  },
+  "K8sStatefulSet": {
+    "prefix": "k8s-statefulset",
+    "body": [
+      "apiVersion: apps/v1",
+      "kind: StatefulSet",
+      "metadata:",
+      "  name: ${1:web}",
+      "spec:",
+      "  serviceName: ${2:nginx}",
+      "  replicas: ${3:3}",
+      "  selector:",
+      "    matchLabels:",
+      "      app: ${4:nginx}",
+      "  template:",
+      "    metadata:",
+      "      labels:",
+      "        app: ${4:nginx}",
+      "    spec:",
+      "      containers:",
+      "        - name: ${5:nginx}",
+      "          image: ${6:nginx}:${7:latest}",
+      "          ports:",
+      "            - containerPort: ${8:80}"
+    ],
+    "description": "Basic k8s statefulset"
+  },
+  "K8sDaemonSet": {
+    "prefix": "k8s-daemonset",
+    "body": [
+      "apiVersion: apps/v1",
+      "kind: DaemonSet",
+      "metadata:",
+      "  name: ${1:fluentd}",
+      "spec:",
+      "  selector:",
+      "    matchLabels:",
+      "      name: ${2:fluentd}",
+      "  template:",
+      "    metadata:",
+      "      labels:",
+      "        name: ${2:fluentd}",
+      "    spec:",
+      "      containers:",
+      "        - name: ${3:fluentd}",
+      "          image: ${4:fluentd}:${5:latest}",
+      "          ports:",
+      "            - containerPort: ${6:24224}"
+    ],
+    "description": "Basic k8s daemonset"
+  },
+  "K8sJob": {
+    "prefix": "k8s-job",
+    "body": [
+      "apiVersion: batch/v1",
+      "kind: Job",
+      "metadata:",
+      "  name: ${1:pi}",
+      "spec:",
+      "  template:",
+      "    spec:",
+      "      containers:",
+      "        - name: ${2:pi}",
+      "          image: ${3:perl}:${4:latest}",
+      "          command: [\"perl\", \"-Mbignum=bpi\", \"-wle\", \"print bpi(2000)\"]",
+      "      restartPolicy: Never"
+    ],
+    "description": "Basic k8s job"
+  },
+  "K8sCronJob": {
+    "prefix": "k8s-cronjob",
+    "body": [
+      "apiVersion: batch/v1",
+      "kind: CronJob",
+      "metadata:",
+      "  name: ${1:hello}",
+      "spec:",
+      "  schedule: \"${2:* * * * *}\"",
+      "  jobTemplate:",
+      "    spec:",
+      "      template:",
+      "        spec:",
+      "          containers:",
+      "            - name: ${3:hello}",
+      "              image: ${4:busybox}:${5:latest}",
+      "              command: [\"/bin/sh\", \"-c\", \"date; echo Hello from Kubernetes\"]",
+      "          restartPolicy: OnFailure"
+    ],
+    "description": "Basic k8s cronjob"
+  },
+  "K8sPV": {
+    "prefix": "k8s-pv",
+    "body": [
+      "apiVersion: v1",
+      "kind: PersistentVolume",
+      "metadata:",
+      "  name: ${1:pv-volume}",
+      "spec:",
+      "  capacity:",
+      "    storage: ${2:10Gi}",
+      "  accessModes:",
+      "    - ReadWriteOnce",
+      "  persistentVolumeReclaimPolicy: Retain",
+      "  storageClassName: ${3:manual}",
+      "  hostPath:",
+      "    path: ${4:/mnt/data}"
+    ],
+    "description": "Basic k8s persistent volume"
+  },
+  "K8sPVC": {
+    "prefix": "k8s-pvc",
+    "body": [
+      "apiVersion: v1",
+      "kind: PersistentVolumeClaim",
+      "metadata:",
+      "  name: ${1:pv-claim}",
+      "spec:",
+      "  storageClassName: ${2:manual}",
+      "  accessModes:",
+      "    - ReadWriteOnce",
+      "  resources:",
+      "    requests:",
+      "      storage: ${3:3Gi}"
+    ],
+    "description": "Basic k8s persistent volume claim"
+  },
+  "K8sHPA": {
+    "prefix": "k8s-hpa",
+    "body": [
+      "apiVersion: autoscaling/v1",
+      "kind: HorizontalPodAutoscaler",
+      "metadata:",
+      "  name: ${1:nginx-hpa}",
+      "spec:",
+      "  scaleTargetRef:",
+      "    apiVersion: apps/v1",
+      "    kind: Deployment",
+      "    name: ${2:nginx-deploy}",
+      "  minReplicas: ${3:1}",
+      "  maxReplicas: ${4:10}",
+      "  targetCPUUtilizationPercentage: ${5:80}"
+    ],
+    "description": "Basic k8s horizontal pod autoscaler"
   }
 }
