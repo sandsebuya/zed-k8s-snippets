@@ -1,0 +1,37 @@
+{
+  "K8sPod": {
+    "prefix": "k8s-pod",
+    "body": [
+      "apiVersion: v1",
+      "kind: Pod",
+      "metadata:",
+      "  name: ${1:nginx}",
+      "spec:",
+      "  containers:",
+      "    - name: ${2:nginx}",
+      "      image: ${3:nginx}:${4:no-value}",
+      "      env: #This block can be deleted",
+      "        - name: foo",
+      "        - value: \"bar\"",
+      "      ports:",
+      "        - containerPort: ${5:8080}"
+    ],
+    "description": "Basic k8s pod"
+  },
+  "K8sSvc": {
+    "prefix": "k8s-svc",
+    "body": [
+      "apiVersion: v1",
+      "kind: Service",
+      "metadata:",
+      "  name: ${1:nginx-svc}",
+      "spec:",
+      "  selector:",
+      "    app: ${2:nginx}",
+      "  ports:",
+      "    - port: ${3:8080}",
+      "      targetPort: ${4:80}"
+    ],
+    "description": "Basic k8s svc"
+  }
+}
